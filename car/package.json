@@ -1,0 +1,21 @@
+{
+  "name": "car",
+  "version": "1.0.0",
+  "description": "car backend service",
+  "main": "index.js",
+  "scripts": {
+    "start": "node ./server.js",
+    "start-dev": "nodemon ./server.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^3.0.0",
+    "body-parser": "^1.17.2",
+    "cors": "^2.8.4",
+    "express": "^4.16.3",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^5.5.0",
+    "requests": "^0.2.2"
+  }
+}

@@ -1,0 +1,13 @@
+version: '3'
+
+services:
+  account:
+    container_name: account_mongo
+    image: mongo
+    ports:
+      - 27018:27017
+  car:
+    container_name: car_mongo
+    image: mongo
+    ports:
+      - 27017:27017
