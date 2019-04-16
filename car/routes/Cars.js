@@ -70,4 +70,44 @@ cars.get('/details/:id', (req, res) => {
         })
 })
 
+
+cars.get('/image/:id', (req, res) => {
+
+    Car.findOne({
+        id: req.params.id
+    })
+    .then(car => {
+        if(car){
+            var img = fs.readFileSync(car.image);
+            res.writeHead(200, {'Content-Type': 'image/gif' });
+            res.end(img, 'binary');
+        }
+    })
+})
+
+var multer  =   require('multer');
+var storage =   multer.diskStorage({
+  destination: function (req, file, callback) {
+    callback(null, './uploads');
+  },
+  filename: function (req, file, callback) {
+    callback(null, file.fieldname + '-' + Date.now());
+  }
+});
+var upload = multer({ storage : storage}).single('userPhoto');
+
+cars.get('/',function(req,res){
+      res.sendFile(__dirname + "/index.html");
+});
+
+cars.post('/api/photo',function(req,res){
+    upload(req,res,function(err) {
+        if(err) {
+            return res.end("Error uploading file.");
+        }
+        res.end("File is uploaded");
+    });
+});
+
+
 module.exports = cars

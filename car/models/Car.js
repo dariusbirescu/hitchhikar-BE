@@ -24,8 +24,7 @@ const CarSchema = new Schema({
         default: Date.now
     },
     seats: { type: Number, min: 1, max: 32 },
-    img:
-        { data: Buffer, contentType: String }
+    img: { type: String }
 
 })
 

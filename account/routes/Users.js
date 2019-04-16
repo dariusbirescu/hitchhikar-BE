@@ -12,10 +12,12 @@ process.env.SECRET_KEY = 'secret'
 users.post('/register', (req, res) => {
     const today = new Date()
     const userData = {
-        first_name: req.body.first_name,
-        last_name: req.body.last_name,
+        firstName: req.body.firstName,
+        lastName: req.body.lastName,
         email: req.body.email,
         password: req.body.password,
+        gender:'',
+        birthday: '',
         created: today
     }
 
@@ -23,19 +25,20 @@ users.post('/register', (req, res) => {
         email: req.body.email
     })
         .then(user => {
+            console.log(user);
             if (!user) {
                 bcrypt.hash(req.body.password, 10, (err, hash) => {
                     userData.password = hash
                     User.create(userData)
                         .then(user => {
-                            res.json({ status: user.email + 'registered!' })
+                            res.status(201).json({ status: user.email + 'registered!' })
                         })
                         .catch(err => {
                             res.send('error' + err)
                         })
                 })
             } else {
-                res.json({ error: 'User already exists' })
+                res.status(400).json({ error: 'User already exists' });
             }
         })
         .catch(err => {
@@ -52,8 +55,10 @@ users.post('/login', (req, res) => {
                 if (bcrypt.compareSync(req.body.password, user.password)) {
                     const payload = {
                         _id: user._id,
-                        first_name: user.first_name,
-                        last_name: user.last_name,
+                        firstName: user.firstName,
+                        lastName: user.lastName,
+                        gender: user.gender,
+                        birthday: user.birthday,
                         email: user.email
                     }
                     let token = jwt.sign(payload, process.env.SECRET_KEY, {
@@ -61,10 +66,10 @@ users.post('/login', (req, res) => {
                     })
                     res.send(token)
                 } else {
-                    res.json({ error: "User does not exist" })
+                    res.status(401).json({ error: "User does not exist" })
                 }
             } else {
-                res.json({ error: "User does not exist" })
+                res.status(401).json({ error: "User does not exist" })
             }
         })
         .catch(err => {
@@ -73,18 +78,35 @@ users.post('/login', (req, res) => {
 
 })
 
-users.get('/profile', (req,res) =>{
+users.post('/profile', (req,res) =>{
+    console.log(req.headers)
     var decoded = jwt.verify(req.headers['authorization'], process.env.SECRET_KEY)
+
+    const userData = {
+        firstName: req.body.firstName,
+        lastName: req.body.lastName,
+        email: req.body.email,
+        password: req.body.password,
+        gender: req.body.gender,
+        birthday: req.body.birthday
+    }
 
     User.findOne({
         _id: decoded._id
     })
     .then(user =>{
-        if(user){
-            res.json(user)
-
-        }else{
-            res.send("User does not exist")
+        if (user) {
+            bcrypt.hash(req.body.password, 10, (err, hash) => {
+                userData.password = hash
+                User.update(userData)
+                    .then(user => {
+                        console.log(user);
+                        res.status(200).json({user})
+                    })
+                    .catch(err => {
+                        res.send('error' + err)
+                    })
+            })
         }
     })
     .catch(err =>{

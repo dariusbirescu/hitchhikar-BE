@@ -21,15 +21,9 @@ mongoose
     .then(() => console.log("MongoDB connected"))
     .catch(err => console.log(err))
 
-var Cars = require('./routes/Cars')
+var cars = require('./routes/Cars')
 
-app.use('/cars', Cars)
-
-app.use(multer({ dest: './uploads/',
-    rename: function (fieldname, filename) {
-      return filename;
-    },
-   }));
+app.use('/cars', cars)
 
 app.listen(port, () => {
     console.log("Server is running on port: "+port)
