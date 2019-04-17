@@ -10,14 +10,12 @@ process.env.SECRET_KEY = 'secret'
 
 cars.post('/upsert', (req, res) => {
     const carData = {
-        id: req.body.id,
         manufacturer: req.body.manufacturer,
         model: req.body.model,
         year: req.body.year,
         seats: req.body.seats,
         extras: req.body.extras,
         owner: req.body.owner,
-        image: today
     }
 
     Car.findOne({
@@ -26,7 +24,7 @@ cars.post('/upsert', (req, res) => {
         if (!car) {
             Car.create(carData)
                 .then(car => {
-                    res.json('new car added!')
+                    res.json('new car added!' + car._id);
                 })
                 .catch(err => {
                     res.send('error' + err)
@@ -40,7 +38,7 @@ cars.post('/upsert', (req, res) => {
                     if (car.owner === user.email) {
                         Car.update(carData)
                             .then(car => {
-                                res.json('car updated')
+                                res.json('car updated' + car._id)
                             })
                             .catch(err => {
                                 res.send('error' + err)
@@ -72,37 +70,35 @@ cars.get('/details/:id', (req, res) => {
 
 
 cars.get('/image/:id', (req, res) => {
-
-    Car.findOne({
-        id: req.params.id
-    })
-    .then(car => {
-        if(car){
-            var img = fs.readFileSync(car.image);
+        var fs  = require('fs');
+        const path = require("path");
+            var img = fs.readFileSync(path.resolve(__dirname, '../uploads/carPhoto-'+req.params.id));
             res.writeHead(200, {'Content-Type': 'image/gif' });
             res.end(img, 'binary');
-        }
-    })
 })
 
 var multer  =   require('multer');
-var storage =   multer.diskStorage({
-  destination: function (req, file, callback) {
-    callback(null, './uploads');
-  },
-  filename: function (req, file, callback) {
-    callback(null, file.fieldname + '-' + Date.now());
-  }
-});
-var upload = multer({ storage : storage}).single('userPhoto');
+
 
 cars.get('/',function(req,res){
       res.sendFile(__dirname + "/index.html");
 });
 
-cars.post('/api/photo',function(req,res){
+cars.post('/api/photo/:carId',function(req,res){
+    var storage =   multer.diskStorage({
+        destination: function (req, file, callback) {
+          callback(null, './uploads');
+        },
+        filename: function (req, file, callback) {
+          callback(null, file.fieldname+"-"+req.params.carId);
+        }
+      });
+
+var upload = multer({ storage : storage}).single('carPhoto');
+
     upload(req,res,function(err) {
         if(err) {
+            console.log(err);
             return res.end("Error uploading file.");
         }
         res.end("File is uploaded");

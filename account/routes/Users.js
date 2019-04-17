@@ -79,7 +79,6 @@ users.post('/login', (req, res) => {
 })
 
 users.post('/profile', (req,res) =>{
-    console.log(req.headers)
     var decoded = jwt.verify(req.headers['authorization'], process.env.SECRET_KEY)
 
     const userData = {
@@ -100,7 +99,6 @@ users.post('/profile', (req,res) =>{
                 userData.password = hash
                 User.update(userData)
                     .then(user => {
-                        console.log(user);
                         res.status(200).json({user})
                     })
                     .catch(err => {
