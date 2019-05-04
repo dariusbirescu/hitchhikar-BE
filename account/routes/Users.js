@@ -3,6 +3,7 @@ const users = express.Router()
 const cors = require("cors")
 const jwt = require("jsonwebtoken")
 const bcrypt = require("bcrypt")
+const axios = require("axios")
 
 const User = require("../models/User")
 users.use(cors())
@@ -16,7 +17,7 @@ users.post('/register', (req, res) => {
         lastName: req.body.lastName,
         email: req.body.email,
         password: req.body.password,
-        gender:'',
+        gender: '',
         birthday: '',
         created: today
     }
@@ -62,7 +63,6 @@ users.post('/login', (req, res) => {
                         email: user.email
                     }
                     let token = jwt.sign(payload, process.env.SECRET_KEY, {
-                        expiresIn: 1440
                     })
                     res.send(token)
                 } else {
@@ -78,7 +78,7 @@ users.post('/login', (req, res) => {
 
 })
 
-users.post('/profile', (req,res) =>{
+users.post('/profile', (req, res) => {
     var decoded = jwt.verify(req.headers['authorization'], process.env.SECRET_KEY)
 
     const userData = {
@@ -93,23 +93,49 @@ users.post('/profile', (req,res) =>{
     User.findOne({
         _id: decoded._id
     })
-    .then(user =>{
-        if (user) {
-            bcrypt.hash(req.body.password, 10, (err, hash) => {
-                userData.password = hash
-                User.update(userData)
-                    .then(user => {
-                        res.status(200).json({user})
+        .then(user => {
+            if (user) {
+                bcrypt.hash(req.body.password, 10, (err, hash) => {
+                    userData.password = hash
+                    User.update(userData)
+                        .then(user => {
+                            res.status(200).json({ user })
+                        })
+                        .catch(err => {
+                            res.send('error' + err)
+                        })
+                })
+            }
+        })
+        .catch(err => {
+            res.send('error' + err)
+        })
+})
+
+
+users.get('/cars', (req, res) => {
+    var decoded = jwt.verify(req.headers['authorization'], process.env.SECRET_KEY)
+
+    User.findOne({
+        _id: decoded._id
+    })
+        .then(user => {
+            if (user) {
+                return axios
+                    .get('http://localhost:5001/cars/userCars/' + decoded.email)
+                    .then(response => {
+                        res.status(200).json(response.data);
+                        return res.data;
                     })
                     .catch(err => {
-                        res.send('error' + err)
+                        console.log(err);
+                        res.send(err);
                     })
-            })
-        }
-    })
-    .catch(err =>{
-        res.send('error' + err)
-    })
+            }
+        })
+        .catch(err => {
+            res.send('could not find user' + err)
+        })
 })
 
 module.exports = users
