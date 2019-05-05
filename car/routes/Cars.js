@@ -11,7 +11,19 @@ process.env.SECRET_KEY = 'secret'
 cars.post('/add', (req, res) => {
     var decoded = jwt.verify(req.headers['authorization'], process.env.SECRET_KEY)
     const carData = {
+        ABS: req.body.ABS,
+        ESP: req.body.ESP,
+        Automatic: req.body.Automatic,
+        RearDefogger: req.body.RearDefogger,
+        ParkingSensors: req.body.ParkingSensors,
+        AC: req.body.AC,
+        RearAirbags: req.body.RearAirbags,
+        CentralLocking: req.body.CentralLocking,
+        OnBoardComputer: req.body.OnBoardComputer,
+        HeadsUpDisplay: req.body.HeadsUpDisplay,
+
         manufacturer: req.body.manufacturer,
+        type: req.body.type,
         model: req.body.model,
         year: req.body.year,
         seats: req.body.seats,
@@ -39,9 +51,23 @@ cars.post('/add', (req, res) => {
 cars.post('/update', (req, res) => {
     jwt.verify(req.headers['authorization'], process.env.SECRET_KEY)
     const carData = {
+        ABS: req.body.ABS,
+        ESP: req.body.ESP,
+        Automatic: req.body.Automatic,
+        RearDefogger: req.body.RearDefogger,
+        ParkingSensors: req.body.ParkingSensors,
+        AC: req.body.AC,
+        RearAirbags: req.body.RearAirbags,
+        CentralLocking: req.body.CentralLocking,
+        OnBoardComputer: req.body.OnBoardComputer,
+        HeadsUpDisplay: req.body.HeadsUpDisplay,
+
+        
         manufacturer: req.body.manufacturer,
         model: req.body.model,
+        type: req.body.type,
         year: req.body.year,
+        price: req.body.price,
         lat: req.body.lat,
         lng: req.body.lng,
         seats: req.body.seats,
@@ -49,40 +75,28 @@ cars.post('/update', (req, res) => {
         availableFrom: req.body.availableFrom,
         availableTo: req.body.availableTo
     }
-    Car.findOne({
-        id: req.body.id
-    }).then(car => {
-        console.log(car);
-        if (car) {
-            Car.updateOne(carData)
-                .then(car => {
-                    res.json('new car updated!' + car._id);
-                })
-                .catch(err => {
-                    res.send('error' + err)
-                })
-        } else {
-            res.send('car does not exist')
-        }
-    })
-        .catch(err => {
-            res.send('error' + err)
-        })
+
+    carId = req.body._id;
+    let query = { '_id': carId };
+    Car.findOneAndUpdate(query, carData, { new: true }, function (err, doc) {
+        if (err) return res.send(500, { error: err });
+        return res.send("succesfully saved" + carData);
+    });
 })
 
 cars.get('/details/:id', (req, res) => {
-    carId=req.params.id;
+    carId = req.params.id;
     Car.findOne({
         _id: carId
     })
         .then(car => {
             if (car) {
-                let query = {'_id':carId};
-                const updatedCarWithViews= car;
-                updatedCarWithViews.views = car.views+1;
-                Car.findOneAndUpdate(query, updatedCarWithViews, {new: true}, function(err, doc){
+                let query = { '_id': carId };
+                const updatedCarWithViews = car;
+                updatedCarWithViews.views = car.views + 1;
+                Car.findOneAndUpdate(query, updatedCarWithViews, { new: true }, function (err, doc) {
                     if (err) return res.send(500, { error: err });
-                    return res.send("succesfully saved" +updatedCarWithViews);
+                    return res.send("succesfully saved" + updatedCarWithViews);
                 });
             } else {
                 res.err("did not find car");
@@ -96,12 +110,12 @@ cars.get('/details/:id', (req, res) => {
 cars.get('/recommendations', (req, res) => {
     Car.find().sort({ views: -1 }).limit(3).then(cars => {
         console.log(cars);
-        if(cars){
+        if (cars) {
             res.send(cars);
-        }else{
+        } else {
             res.err("no cars found");
         }
-        
+
     })
 
 })
@@ -112,7 +126,7 @@ cars.get('/userCars/:userEmail', (req, res) => {
     })
         .then(cars => {
             if (cars) {
-                    return res.status(200).json(cars);
+                return res.status(200).json(cars);
             } else {
                 res.err("did not find cars");
             }

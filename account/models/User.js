@@ -26,8 +26,8 @@ const UserSchema = new Schema({
          type: Date,
          default: Date.now
      },
-     gender:{
-         type: Number,
+     title:{
+         type: String,
          default: 0
      }
 })

@@ -17,7 +17,7 @@ users.post('/register', (req, res) => {
         lastName: req.body.lastName,
         email: req.body.email,
         password: req.body.password,
-        gender: '',
+        title: '',
         birthday: '',
         created: today
     }
@@ -32,6 +32,7 @@ users.post('/register', (req, res) => {
                     userData.password = hash
                     User.create(userData)
                         .then(user => {
+                            console.log("User>>>>>>>>>>>>>>",user);
                             res.status(201).json({ status: user.email + 'registered!' })
                         })
                         .catch(err => {
@@ -58,7 +59,7 @@ users.post('/login', (req, res) => {
                         _id: user._id,
                         firstName: user.firstName,
                         lastName: user.lastName,
-                        gender: user.gender,
+                        title: user.title,
                         birthday: user.birthday,
                         email: user.email
                     }
@@ -78,6 +79,7 @@ users.post('/login', (req, res) => {
 
 })
 
+
 users.post('/profile', (req, res) => {
     var decoded = jwt.verify(req.headers['authorization'], process.env.SECRET_KEY)
 
@@ -85,26 +87,38 @@ users.post('/profile', (req, res) => {
         firstName: req.body.firstName,
         lastName: req.body.lastName,
         email: req.body.email,
-        password: req.body.password,
-        gender: req.body.gender,
+        title: req.body.title,
         birthday: req.body.birthday
     }
 
     User.findOne({
-        _id: decoded._id
+        email: req.body.email
     })
         .then(user => {
-            if (user) {
-                bcrypt.hash(req.body.password, 10, (err, hash) => {
-                    userData.password = hash
-                    User.update(userData)
-                        .then(user => {
-                            res.status(200).json({ user })
-                        })
-                        .catch(err => {
-                            res.send('error' + err)
-                        })
-                })
+            if (!user || user.email === decoded.email) {
+                userId = decoded._id;
+                let query = { '_id': userId };
+                const password = req.body.password;
+                if (password && password !== "") {
+                    bcrypt.hash(password, 10, (err, hash) => {
+                        userData.password = hash
+                        User.findOneAndUpdate(query, userData, { new: true }, function (err, doc) {
+                            if (err) return res.send(500, { error: err });
+                            userData._id=decoded._id;
+                            let token = jwt.sign(userData, process.env.SECRET_KEY, {})
+                            return res.send(token)
+                        });
+                    })
+                } else {
+                    User.findOneAndUpdate(query, userData, { new: true }, function (err, doc) {
+                        if (err) return res.send(500, { error: err });
+                        userData._id=decoded._id;
+                        let token = jwt.sign(userData, process.env.SECRET_KEY, {})
+                        return res.send(token)
+                    });
+                }
+            } else {
+                    res.status(400).json({ error: 'User already exists' });
             }
         })
         .catch(err => {

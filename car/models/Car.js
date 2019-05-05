@@ -5,6 +5,19 @@ const CarSchema = new Schema({
     owner: {
         type: String
     },
+    ABS: { type: Boolean },
+    ESP: { type: Boolean },
+    Automatic: { type: Boolean },
+    RearDefogger: { type: Boolean },
+    ParkingSensors: { type: Boolean },
+    AC: { type: Boolean },
+    RearAirbags: { type: Boolean },
+    CentralLocking: { type: Boolean },
+    OnBoardComputer: { type: Boolean },
+    HeadsUpDisplay: { type: Boolean },
+    type: {
+        type: String
+    },
     lat: { type: Number },
     lng: { type: Number },
 
