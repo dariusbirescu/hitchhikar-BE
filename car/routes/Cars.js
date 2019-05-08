@@ -48,6 +48,12 @@ cars.post('/add', (req, res) => {
         })
 })
 
+cars.get('/allCars', (req,res) =>{
+    Car.find().then(cars => {
+        res.send(cars);
+    })
+})
+
 cars.post('/update', (req, res) => {
     jwt.verify(req.headers['authorization'], process.env.SECRET_KEY)
     const carData = {
@@ -62,7 +68,7 @@ cars.post('/update', (req, res) => {
         OnBoardComputer: req.body.OnBoardComputer,
         HeadsUpDisplay: req.body.HeadsUpDisplay,
 
-        
+
         manufacturer: req.body.manufacturer,
         model: req.body.model,
         type: req.body.type,
@@ -108,6 +114,9 @@ cars.get('/details/:id', (req, res) => {
 })
 
 cars.get('/recommendations', (req, res) => {
+    Car.find({
+        _id: carId
+    })
     Car.find().sort({ views: -1 }).limit(3).then(cars => {
         console.log(cars);
         if (cars) {
@@ -117,6 +126,23 @@ cars.get('/recommendations', (req, res) => {
         }
 
     })
+
+})
+
+cars.post('/carsInArea', (req, res) => {
+    console.log(req.body.minLat + " "+req.body.maxLat + " "+req.body.minLng+" "+req.body.maxLng)
+    Car.find().where('lat').gt(req.body.minLat).lt(req.body.maxLat)
+              .where('lng').gt(req.body.minLng).lt(req.body.maxLng).exec( (err,cars) => {
+                if (err){  console.log(err); return handleError(err);}
+        console.log(cars);
+        if (cars) {
+            res.send(cars);
+        } else {
+            res.err("no cars found");
+        }
+
+    })
+    res.status(200);
 
 })
 
