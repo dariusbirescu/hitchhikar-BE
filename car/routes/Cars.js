@@ -145,24 +145,23 @@ cars.post('/rent', (req, res) => {
 
 cars.get('/details/:id', (req, res) => {
     carId = req.params.id;
+    console.log(carId);
     Car.findOne({
         _id: carId
     })
         .then(car => {
             if (car) {
+                console.log(car);
                 let query = { '_id': carId };
                 const updatedCarWithViews = car;
                 updatedCarWithViews.views = car.views + 1;
                 Car.findOneAndUpdate(query, updatedCarWithViews, { new: true }, function (err, doc) {
                     if (err) return res.send(500, { error: err });
-                    return res.send(200).json(updatedCarWithViews);
+                    return res.json(updatedCarWithViews);
                 });
             } else {
                 return res.err("did not find car");
             }
-        })
-        .catch(err => {
-            return res.err('error' + err)
         })
 })
 
