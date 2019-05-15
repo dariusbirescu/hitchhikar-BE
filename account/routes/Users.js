@@ -32,7 +32,6 @@ users.post('/register', (req, res) => {
                     userData.password = hash
                     User.create(userData)
                         .then(user => {
-                            console.log("User>>>>>>>>>>>>>>",user);
                             res.status(201).json({ status: user.email + 'registered!' })
                         })
                         .catch(err => {
@@ -104,7 +103,7 @@ users.post('/profile', (req, res) => {
                         userData.password = hash
                         User.findOneAndUpdate(query, userData, { new: true }, function (err, doc) {
                             if (err) return res.send(500, { error: err });
-                            userData._id=decoded._id;
+                            userData._id = decoded._id;
                             let token = jwt.sign(userData, process.env.SECRET_KEY, {})
                             return res.send(token)
                         });
@@ -112,13 +111,13 @@ users.post('/profile', (req, res) => {
                 } else {
                     User.findOneAndUpdate(query, userData, { new: true }, function (err, doc) {
                         if (err) return res.send(500, { error: err });
-                        userData._id=decoded._id;
+                        userData._id = decoded._id;
                         let token = jwt.sign(userData, process.env.SECRET_KEY, {})
                         return res.send(token)
                     });
                 }
             } else {
-                    res.status(400).json({ error: 'User already exists' });
+                res.status(400).json({ error: 'User already exists' });
             }
         })
         .catch(err => {
@@ -146,6 +145,110 @@ users.get('/cars', (req, res) => {
                         res.send(err);
                     })
             }
+        })
+        .catch(err => {
+            res.send('could not find user' + err)
+        })
+})
+
+users.post('/pastCars', (req, res) => {
+    var decoded = jwt.verify(req.headers['authorization'], process.env.SECRET_KEY)
+
+    User.findOne({
+        _id: decoded._id
+    })
+        .then(user => {
+            if (user) {
+                pastTrips=user.rentals.filter(rental => {
+                    let date=new Date(rental.start);
+                    return new Date() > date;
+                })
+                return res.status(200).json(pastTrips);
+            }
+        })
+        .catch(err => {
+            res.send('could not find user' + err)
+        })
+})
+
+users.post('/futureCars', (req, res) => {
+    var decoded = jwt.verify(req.headers['authorization'], process.env.SECRET_KEY)
+
+    User.findOne({
+        _id: decoded._id
+    })
+        .then(user => {
+            if (user) {
+                console.log("<<<<<<<<<<<<<<<<",user);
+                pastTrips=user.rentals.filter(rental => {
+                    let date=new Date(rental.rentFrom);
+                    return new Date() < date;
+                })
+                console.log("<<<<<<<<<<<<<<<<date",pastTrips);
+
+                return res.status(200).json(pastTrips);
+            }
+        })
+        .catch(err => {
+            res.send('could not find user' + err)
+        })
+})
+
+users.post('/cars', (req, res) => {
+    var decoded = jwt.verify(req.headers['authorization'], process.env.SECRET_KEY)
+
+    User.findOne({
+        _id: decoded._id
+    })
+        .then(user => {
+            if (user) {
+                return axios
+                    .get('http://localhost:5001/cars/userCars/' + decoded.email)
+                    .then(response => {
+                        res.status(200).json(response.data);
+                        return res.data;
+                    })
+                    .catch(err => {
+                        console.log(err);
+                        res.send(err);
+                    })
+            }
+        })
+        .catch(err => {
+            res.send('could not find user' + err)
+        })
+})
+
+users.post('/rent', (req, res) => {
+    var decoded = jwt.verify(req.headers['authorization'], process.env.SECRET_KEY)
+
+    carId = req.body.carId;
+    rentFrom = req.body.startDate;
+    rentTo = req.body.endDate;
+
+    User.findOne({
+        _id: decoded._id
+    })
+        .then(user => {
+            let query = { '_id': decoded._id };
+            userRentals = user.rentals;
+            userRentals.push({ rentFrom: req.body.startDate, rentTo: req.body.endDate, carId: req.body.carId })
+
+            user.rentals = userRentals;
+            User.findOneAndUpdate(query, user, { new: true }, function (err, doc) {
+            }).then(userResponse =>{
+            return axios
+                .post('http://localhost:5001/cars/rent',{carId,rentFrom,rentTo})
+                .then(response => {
+                    res.status(200).json(response.data);
+                    return res.data;
+                })
+                .catch(err => {
+                    console.log(err);
+                    res.send(err);
+                })
+            });
+
         })
         .catch(err => {
             res.send('could not find user' + err)

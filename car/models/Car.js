@@ -55,6 +55,9 @@ const CarSchema = new Schema({
         type: Date
     },
     seats: { type: Number, min: 1, max: 32 },
+    blockedDates: {
+        type: Array
+    },
     img: { type: String }
 
 })

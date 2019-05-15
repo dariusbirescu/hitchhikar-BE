@@ -29,6 +29,9 @@ const UserSchema = new Schema({
      title:{
          type: String,
          default: 0
+     },
+     rentals:{
+        type: Array
      }
 })
 
