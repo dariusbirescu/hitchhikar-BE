@@ -26,7 +26,6 @@ users.post('/register', (req, res) => {
         email: req.body.email
     })
         .then(user => {
-            console.log(user);
             if (!user) {
                 bcrypt.hash(req.body.password, 10, (err, hash) => {
                     userData.password = hash
@@ -141,7 +140,6 @@ users.get('/cars', (req, res) => {
                         return res.data;
                     })
                     .catch(err => {
-                        console.log(err);
                         res.send(err);
                     })
             }
@@ -179,12 +177,10 @@ users.post('/futureCars', (req, res) => {
     })
         .then(user => {
             if (user) {
-                console.log("<<<<<<<<<<<<<<<<",user);
                 pastTrips=user.rentals.filter(rental => {
                     let date=new Date(rental.rentFrom);
                     return new Date() < date;
                 })
-                console.log("<<<<<<<<<<<<<<<<date",pastTrips);
 
                 return res.status(200).json(pastTrips);
             }
@@ -209,7 +205,6 @@ users.post('/cars', (req, res) => {
                         return res.data;
                     })
                     .catch(err => {
-                        console.log(err);
                         res.send(err);
                     })
             }

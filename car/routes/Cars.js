@@ -49,9 +49,11 @@ cars.post('/add', (req, res) => {
     carData.owner = decoded.email;
     Car.create(carData)
         .then(car => {
+            console.log(car);
             return res.json(car._id)
         })
         .catch(err => {
+            console.log(err);
             return res.send('error' + err)
         })
 })
@@ -198,7 +200,7 @@ cars.post('/carsInArea', (req, res) => {
 })
 
 cars.get('/userCars/:userEmail', (req, res) => {
-    Car.find({
+    Car.find({ 
         owner: req.params.userEmail
     })
         .then(cars => {
