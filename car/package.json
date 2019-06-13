@@ -10,13 +10,18 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "bcrypt": "^3.0.0",
+    "bcryptjs": "^2.4.3",
     "body-parser": "^1.17.2",
+    "cfenv": "^1.2.2",
     "cors": "^2.8.4",
     "express": "^4.16.3",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.5.0",
+    "morgan": "^1.9.1",
     "multer": "^1.4.1",
     "requests": "^0.2.2"
+  },
+  "engines": {
+    "node": "8.16.x"
   }
 }

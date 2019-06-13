@@ -1,0 +1,9 @@
+
+applications:
+- name: car-node
+  host: car-node
+  buildpack: nodejs_buildpack
+  command: node server.js
+  memory: 512M
+  env:
+    NODE_ENV: cloud-foundry
