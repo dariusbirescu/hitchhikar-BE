@@ -15,7 +15,7 @@ const env = cfenv.getAppEnv({
             password: '',
             port: '27018',
             role: 'dbOwner',
-            uri: 'mongodb://localhost:27017/cars',
+            uri: 'mongodb://localhost:27018/cars',
             username: '',
           },
           instance_name: 'mongo',

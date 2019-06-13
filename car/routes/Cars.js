@@ -200,10 +200,12 @@ cars.post('/carsInArea', (req, res) => {
 })
 
 cars.get('/userCars/:userEmail', (req, res) => {
+    console.log(req.params.userEmail);
     Car.find({ 
         owner: req.params.userEmail
     })
         .then(cars => {
+
             if (cars) {
                 return res.status(200).json(cars);
             } else {

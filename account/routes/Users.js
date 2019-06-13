@@ -126,16 +126,20 @@ users.post('/profile', (req, res) => {
 
 
 users.get('/cars', (req, res) => {
-    var decoded = jwt.verify(req.headers['authorization'], process.env.SECRET_KEY)
+    var decoded = jwt.verify(req.headers['authorization'], process.env.SECRET_KEY);
+    console.log("DECODED",decoded);
 
     User.findOne({
         _id: decoded._id
     })
         .then(user => {
+            console.log("USER",user);
             if (user) {
+                console.log("USER:",user);
                 return axios
                     .get('http://localhost:5001/cars/userCars/' + decoded.email)
                     .then(response => {
+                        console.log(response);
                         res.status(200).json(response.data);
                         return res.data;
                     })
