@@ -11,3 +11,8 @@ services:
     image: mongo
     ports:
       - 27017:27017
+  notification:
+    container_name: notification_mongo
+    image: mongo
+    ports:
+      - 27019:27017
